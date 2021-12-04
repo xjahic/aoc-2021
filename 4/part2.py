@@ -16,57 +16,59 @@ with open("input.txt") as f:
             else:
                 boards[-1].append([int(number) for number in line.split(' ') if number.isdigit()])
 
-winner_board = []
+winner_boards_indices = []
 last_bingo_number = -1
 
-for bingo_numbers_count, bingo_number in enumerate(bingo_numbers):
+last_winner_board = []
+
+
+def mark_number_on_board(board, number):
+    for i in range(0, len(board)):  # board_row
+        for j in range(0, len(board)):  # number in board_row
+            if board[i][j] == number:
+                board[i][j] = -1
+
+
+def has_winning_row(board):
+    for board_row in board:
+        if sum(board_row) == -5:
+            return True
+    return False
+
+
+def has_winning_column(board):
+    transposed_board = [[board[j][i] for j in range(len(board))] for i in range(len(board[0]))]
+    return has_winning_row(transposed_board)
+
+
+for bingo_number in bingo_numbers:
     for board in boards:
-        for i in range(0, len(board)):  # board_row
-            for j in range(0, len(board)):  # number in board_row
-                if board[i][j] == bingo_number:
-                    board[i][j] = -1
+        mark_number_on_board(board, bingo_number)
+
+    last_winner_emerged = False
     # check winners
-    did_someone_win = False
+    for board_inner_index, board in enumerate(boards):
+        if board_inner_index in winner_boards_indices:
+            continue
 
-    for board in boards:
-        is_board_winner = False
-
-        # check rows
-        for i in range(len(board)):
-            is_row_winner = True
-            for j in range(len(board)):
-                if board[i][j] != -1:
-                    is_row_winner = False
-                    break
-
-            if is_row_winner:
-                is_board_winner = True
-                break
-
-        # check columns
-        for i in range(len(board)):
-            is_column_winner = True
-            for j in range(len(board)):
-                if board[j][i] != -1:
-                    is_column_winner = False
-                    break
-
-            if is_column_winner:
-                is_board_winner = True
-                break
+        is_board_winner = has_winning_row(board) or has_winning_column(board)
 
         # checking completed
         if is_board_winner:
-            winner_board = board
-            did_someone_win = True
-            break
+            winner_boards_indices.append(board_inner_index)
+            if len(boards) == len(winner_boards_indices):
+                last_winner_emerged = True
 
-    if did_someone_win:
-        last_bingo_number = bingo_number
+    if last_winner_emerged:
         break
 
-sum_of_winner_board = [sum(board_row) for board_row in winner_board]
-result_sum = sum(sum_of_winner_board) + (25 - bingo_numbers_count) + 1
-print(result_sum * last_bingo_number)
+last_winner_board = boards[winner_boards_indices[-1]]
+sum_of_winner_board = [sum(board_row) for board_row in last_winner_board]
 
+result_sum = 0
+for row in last_winner_board:
+    for v in row:
+        if v != -1:
+            result_sum += v
 
+print(result_sum * bingo_number)
