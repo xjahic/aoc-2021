@@ -3,20 +3,32 @@ with open("input.txt") as f:
     line = f.readlines()[0]
     initial_fish = [int(fish) for fish in line.rstrip().split(',')]
 
+data = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0
+}
+
+for fish in initial_fish:
+    data[fish] = data.get(fish) + 1
+
+
 for i in range(80):
-    updated_fish = []
-    new_fish_count = 0
-    for fish in initial_fish:
-        if fish == 0:
-            updated_fish.append(6)
-            new_fish_count += 1
-        else:
-            updated_fish.append(fish - 1)
+    # remember previous first fish count
+    numbers_of_fish_to_create = data[0]
 
-    if new_fish_count > 0:
-        updated_fish.extend([8] * new_fish_count)
-    initial_fish = updated_fish
+    for data_index in range(8):
+        # shift to left
+        data[data_index] = data[data_index + 1]
 
-    # print("iteration", i, ': ', initial_fish)
+    data[6] = data.get(6) + numbers_of_fish_to_create
+    data[8] = numbers_of_fish_to_create
 
-print(len(initial_fish))
+
+print(sum(data.values()))

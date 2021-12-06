@@ -1,30 +1,34 @@
+
 with open("input.txt") as f:
     line = f.readlines()[0]
     initial_fish = [int(fish) for fish in line.rstrip().split(',')]
 
-count = 0
-
-
-def count_fish(days, fish, res):
-    fish_reproduction = 0
-    days_until_zero = fish + 1
-
-    six_days_fish = days - days_until_zero
-    if six_days_fish > 0:
-        fish_reproduction += int(six_days_fish // 6)
-
-    eight_days_fish = days - days_until_zero
-    if eight_days_fish > 0:
-        fish_reproduction += int(eight_days_fish // 8)
-
-    if fish_reproduction > 0:
-        return count_fish(six_days_fish - 6, fish, fish_reproduction) + count_fish(eight_days_fish - 8, fish,
-                                                                                   fish_reproduction)
-    else:
-        return res
-
+data = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0
+}
 
 for fish in initial_fish:
-    count += count_fish(80, fish, count)
+    data[fish] = data.get(fish) + 1
 
-print(count)
+
+for i in range(256):
+    # remember previous first fish count
+    numbers_of_fish_to_create = data[0]
+
+    for data_index in range(8):
+        # shift to left
+        data[data_index] = data[data_index + 1]
+
+    data[6] = data.get(6) + numbers_of_fish_to_create
+    data[8] = numbers_of_fish_to_create
+
+
+print(sum(data.values()))
